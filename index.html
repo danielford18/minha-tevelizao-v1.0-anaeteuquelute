@@ -1,999 +1,877 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StreamTV</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@400;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1.0">
+<title>StreamTV</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
 
-    :root {
-      --bg: #080c14;
-      --surface: #0f1623;
-      --surface2: #161e2e;
-      --border: rgba(255,255,255,0.07);
-      --accent: #00d4ff;
-      --accent2: #0077ff;
-      --text: #e8edf5;
-      --text-dim: #6a7a94;
-      --text-mid: #a0b0c8;
-      --red: #ff3b5c;
-      --sidebar-w: 340px;
-      --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+body {
+  background:#080c14;
+  color:#e8edf5;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow:hidden;
+  width:1280px; height:720px;
+  font-size:16px;
+}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── SPLASH ── */
+#splash {
+  position:absolute; top:0; left:0;
+  width:1280px; height:720px;
+  background:#080c14;
+  display:-webkit-box; display:flex;
+  -webkit-box-orient:vertical; flex-direction:column;
+  -webkit-box-align:center; align-items:center;
+  -webkit-box-pack:center; justify-content:center;
+  z-index:999;
+}
+#splash h1 {
+  font-size:72px; letter-spacing:8px;
+  font-weight:bold; color:#ffffff;
+}
+#splash h1 span { color:#00d4ff; }
+#splash p {
+  margin-top:12px; font-size:14px;
+  letter-spacing:3px; color:#6a7a94;
+}
+.splash-bar {
+  margin-top:48px;
+  width:200px; height:3px;
+  background:#161e2e; border-radius:2px;
+  overflow:hidden;
+}
+.splash-fill {
+  height:100%; width:0; background:#00d4ff;
+  border-radius:2px;
+  -webkit-transition: width 1.5s ease;
+  transition: width 1.5s ease;
+}
 
-    html, body {
-      width: 100%; height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Barlow', sans-serif;
-      overflow: hidden;
-      user-select: none;
-      -webkit-user-select: none;
-    }
+/* ── SETUP ── */
+#setup {
+  position:absolute; top:0; left:0;
+  width:1280px; height:720px;
+  background:#080c14;
+  display:-webkit-box; display:flex;
+  -webkit-box-align:center; align-items:center;
+  -webkit-box-pack:center; justify-content:center;
+  z-index:90;
+}
+.card {
+  background:#0f1623;
+  border:1px solid #1e2d45;
+  border-radius:12px;
+  padding:48px 56px;
+  width:620px;
+  text-align:center;
+}
+.card h2 { font-size:36px; letter-spacing:4px; color:#fff; margin-bottom:8px; }
+.card h2 span { color:#00d4ff; }
+.card p { color:#6a7a94; font-size:13px; margin-bottom:32px; line-height:1.7; }
 
-    /* ── SPLASH ── */
-    #splash {
-      position: fixed; inset: 0;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 1000;
-      transition: opacity 0.5s ease;
-    }
-    #splash.hidden { opacity: 0; pointer-events: none; }
-    .splash-logo {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 64px; font-weight: 700;
-      letter-spacing: 6px;
-      color: var(--text);
-    }
-    .splash-logo span { color: var(--accent); }
-    .splash-sub {
-      margin-top: 12px;
-      font-size: 14px; letter-spacing: 3px;
-      color: var(--text-dim); text-transform: uppercase;
-    }
-    .splash-loader {
-      margin-top: 48px;
-      width: 200px; height: 2px;
-      background: var(--surface2);
-      border-radius: 2px; overflow: hidden;
-    }
-    .splash-loader-bar {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--accent2), var(--accent));
-      border-radius: 2px;
-      animation: splashLoad 1.5s ease forwards;
-    }
-    @keyframes splashLoad { to { width: 100%; } }
+.field { margin-bottom:16px; text-align:left; }
+.field label {
+  display:block; font-size:11px;
+  letter-spacing:2px; color:#6a7a94;
+  text-transform:uppercase; margin-bottom:8px;
+}
+.field input {
+  width:100%; background:#161e2e;
+  border:1px solid #1e2d45; border-radius:8px;
+  padding:14px 16px; font-size:14px;
+  color:#e8edf5; outline:none;
+  font-family:Arial,sans-serif;
+}
+.field input:focus { border-color:#00d4ff; }
 
-    /* ── SETUP SCREEN ── */
-    #setup-screen {
-      position: fixed; inset: 0;
-      background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 900;
-      transition: opacity 0.4s ease;
-    }
-    #setup-screen.hidden { opacity: 0; pointer-events: none; }
+.btn-main {
+  display:block; width:100%;
+  background:#00d4ff; color:#000;
+  border:none; border-radius:8px;
+  padding:14px; font-size:15px;
+  font-weight:bold; letter-spacing:1px;
+  cursor:pointer; margin-top:8px;
+  font-family:Arial,sans-serif;
+}
+.btn-main:hover, .btn-main.focused { background:#00aadd; }
 
-    .setup-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 56px;
-      width: 600px;
-      text-align: center;
-    }
-    .setup-card h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 36px; font-weight: 700; letter-spacing: 3px;
-      margin-bottom: 8px;
-    }
-    .setup-card h1 span { color: var(--accent); }
-    .setup-card p {
-      color: var(--text-dim); font-size: 14px;
-      margin-bottom: 32px; line-height: 1.6;
-    }
+.btn-ghost {
+  display:block; width:100%;
+  background:transparent; color:#6a7a94;
+  border:1px solid #1e2d45; border-radius:8px;
+  padding:12px; font-size:13px;
+  cursor:pointer; margin-top:10px;
+  font-family:Arial,sans-serif;
+}
+.btn-ghost:hover, .btn-ghost.focused {
+  border-color:#00d4ff; color:#00d4ff;
+}
 
-    .input-group { margin-bottom: 16px; text-align: left; }
-    .input-group label {
-      display: block; font-size: 11px; letter-spacing: 2px;
-      color: var(--text-dim); text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .input-group input {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      font-size: 14px; font-family: 'Barlow', sans-serif;
-      color: var(--text);
-      outline: none;
-      transition: border-color var(--transition);
-    }
-    .input-group input:focus {
-      border-color: var(--accent);
-    }
+#setup-err {
+  margin-top:10px; padding:10px 14px;
+  background:rgba(255,59,92,0.1);
+  border:1px solid rgba(255,59,92,0.3);
+  border-radius:6px; font-size:13px;
+  color:#ff3b5c; display:none;
+}
 
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      gap: 8px;
-      padding: 14px 28px; border-radius: 8px;
-      font-family: 'Barlow', sans-serif;
-      font-size: 14px; font-weight: 600; letter-spacing: 1px;
-      cursor: pointer; border: none; outline: none;
-      transition: all var(--transition);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      color: #fff; width: 100%; margin-top: 8px;
-    }
-    .btn-primary:hover, .btn-primary.focused {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
-    }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-dim); font-size: 12px;
-      margin-top: 12px; width: 100%;
-    }
-    .btn-ghost:hover, .btn-ghost.focused {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+/* ── MAIN APP ── */
+#app {
+  position:absolute; top:0; left:0;
+  width:1280px; height:720px;
+  display:-webkit-box; display:flex;
+  visibility:hidden;
+}
 
-    .setup-error {
-      margin-top: 12px; padding: 10px 14px;
-      background: rgba(255,59,92,0.1); border: 1px solid rgba(255,59,92,0.3);
-      border-radius: 6px; font-size: 13px; color: var(--red);
-      display: none;
-    }
-    .setup-error.visible { display: block; }
+/* ── SIDEBAR ── */
+#sidebar {
+  width:340px; height:720px;
+  background:#0f1623;
+  border-right:1px solid #1e2d45;
+  display:-webkit-box; display:flex;
+  -webkit-box-orient:vertical; flex-direction:column;
+  -webkit-box-flex:0; flex-shrink:0;
+  position:relative;
+}
+.sb-header {
+  padding:18px 16px 14px;
+  border-bottom:1px solid #1e2d45;
+}
+.sb-logo { font-size:22px; letter-spacing:3px; font-weight:bold; }
+.sb-logo span { color:#00d4ff; }
+.sb-meta { font-size:11px; color:#6a7a94; margin-top:3px; }
 
-    /* ── MAIN LAYOUT ── */
-    #app {
-      display: flex; width: 100%; height: 100%;
-      opacity: 0; transition: opacity 0.5s ease;
-    }
-    #app.visible { opacity: 1; }
+.sb-search {
+  padding:10px 12px;
+  border-bottom:1px solid #1e2d45;
+}
+.sb-search input {
+  width:100%; background:#161e2e;
+  border:1px solid #1e2d45; border-radius:6px;
+  padding:9px 12px; font-size:13px;
+  color:#e8edf5; outline:none;
+  font-family:Arial,sans-serif;
+}
+.sb-search input:focus { border-color:#00d4ff; }
 
-    /* ── SIDEBAR ── */
-    #sidebar {
-      width: var(--sidebar-w);
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      flex-shrink: 0;
-      transition: transform var(--transition);
-      position: relative; z-index: 10;
-    }
-    #sidebar.hidden-sidebar {
-      transform: translateX(-100%);
-    }
+.sb-groups {
+  display:-webkit-box; display:flex;
+  overflow:hidden; /* hide overflow for old webkit */
+  padding:8px 10px;
+  border-bottom:1px solid #1e2d45;
+  -webkit-box-flex:0; flex-shrink:0;
+}
+.grp {
+  -webkit-box-flex:0; flex-shrink:0;
+  padding:4px 10px; border-radius:12px;
+  font-size:11px; font-weight:bold;
+  background:#161e2e; border:1px solid #1e2d45;
+  color:#6a7a94; cursor:pointer;
+  margin-right:6px; white-space:nowrap;
+}
+.grp.active { background:#00d4ff; border-color:#00d4ff; color:#000; }
 
-    .sidebar-header {
-      padding: 24px 20px 16px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .logo {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 24px; font-weight: 700; letter-spacing: 3px;
-    }
-    .logo span { color: var(--accent); }
-    .sidebar-meta {
-      font-size: 11px; color: var(--text-dim);
-      letter-spacing: 1px; margin-top: 4px;
-    }
+#ch-list {
+  -webkit-box-flex:1; flex:1;
+  overflow-y:scroll; overflow-x:hidden;
+}
+/* Tizen old: hide scrollbar via negative margin trick */
 
-    .search-wrap {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .search-box {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 14px;
-      transition: border-color var(--transition);
-    }
-    .search-box.focused { border-color: var(--accent); }
-    .search-icon { color: var(--text-dim); font-size: 14px; flex-shrink: 0; }
-    #search-input {
-      background: transparent; border: none; outline: none;
-      font-family: 'Barlow', sans-serif;
-      font-size: 13px; color: var(--text);
-      width: 100%;
-    }
-    #search-input::placeholder { color: var(--text-dim); }
+.ch {
+  display:-webkit-box; display:flex;
+  -webkit-box-align:center; align-items:center;
+  padding:9px 12px; cursor:pointer;
+  border-left:3px solid transparent;
+}
+.ch:hover, .ch.focused {
+  background:#161e2e; border-left-color:#00d4ff;
+}
+.ch.active {
+  background:rgba(0,212,255,0.07);
+  border-left-color:#00d4ff;
+}
+.ch-n {
+  font-size:11px; color:#6a7a94;
+  width:30px; text-align:right;
+  margin-right:10px; -webkit-box-flex:0; flex-shrink:0;
+}
+.ch-img {
+  width:34px; height:34px; border-radius:5px;
+  background:#161e2e; border:1px solid #1e2d45;
+  overflow:hidden; margin-right:10px;
+  -webkit-box-flex:0; flex-shrink:0;
+  display:-webkit-box; display:flex;
+  -webkit-box-align:center; align-items:center;
+  -webkit-box-pack:center; justify-content:center;
+  font-size:10px; color:#6a7a94;
+}
+.ch-img img { width:34px; height:34px; object-fit:contain; }
+.ch-info { -webkit-box-flex:1; flex:1; overflow:hidden; }
+.ch-name {
+  font-size:13px; font-weight:bold;
+  white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ch-grp {
+  font-size:11px; color:#6a7a94;
+  white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ch-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:#00d4ff; margin-left:6px;
+  -webkit-box-flex:0; flex-shrink:0;
+}
 
-    .groups-bar {
-      display: flex; gap: 6px;
-      padding: 10px 16px;
-      overflow-x: auto;
-      flex-shrink: 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .groups-bar::-webkit-scrollbar { display: none; }
-    .group-chip {
-      flex-shrink: 0;
-      padding: 5px 12px; border-radius: 20px;
-      font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-    .group-chip.active, .group-chip.focused {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #000;
-    }
+.sb-footer {
+  padding:7px 12px; font-size:11px;
+  color:#6a7a94; border-top:1px solid #1e2d45;
+  -webkit-box-flex:0; flex-shrink:0;
+}
 
-    #channel-list {
-      flex: 1; overflow-y: auto;
-      padding: 8px 0;
-    }
-    #channel-list::-webkit-scrollbar { width: 4px; }
-    #channel-list::-webkit-scrollbar-track { background: transparent; }
-    #channel-list::-webkit-scrollbar-thumb {
-      background: var(--border); border-radius: 2px;
-    }
+/* ── PLAYER ── */
+#player-wrap {
+  -webkit-box-flex:1; flex:1;
+  height:720px; position:relative;
+  background:#000;
+  display:-webkit-box; display:flex;
+  -webkit-box-orient:vertical; flex-direction:column;
+}
 
-    .ch-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 16px;
-      cursor: pointer;
-      transition: background var(--transition);
-      border-left: 3px solid transparent;
-      position: relative;
-    }
-    .ch-item:hover { background: var(--surface2); }
-    .ch-item.focused {
-      background: var(--surface2);
-      border-left-color: var(--accent);
-    }
-    .ch-item.active {
-      background: rgba(0, 212, 255, 0.08);
-      border-left-color: var(--accent);
-    }
-    .ch-num {
-      font-size: 11px; color: var(--text-dim);
-      width: 28px; text-align: right;
-      font-family: 'Barlow Condensed', sans-serif;
-      flex-shrink: 0;
-    }
-    .ch-logo {
-      width: 36px; height: 36px;
-      border-radius: 6px; background: var(--surface2);
-      border: 1px solid var(--border);
-      object-fit: contain; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; color: var(--text-dim); overflow: hidden;
-    }
-    .ch-logo img { width: 100%; height: 100%; object-fit: contain; }
-    .ch-info { flex: 1; min-width: 0; }
-    .ch-name {
-      font-size: 13px; font-weight: 600;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .ch-group {
-      font-size: 11px; color: var(--text-dim);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .ch-playing {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+#player-area {
+  -webkit-box-flex:1; flex:1;
+  position:relative; background:#000;
+}
 
-    .ch-count {
-      padding: 8px 16px;
-      font-size: 11px; color: var(--text-dim);
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
-    }
+video#v {
+  width:100%; height:100%;
+  display:block;
+}
 
-    /* ── PLAYER AREA ── */
-    #player-area {
-      flex: 1; position: relative;
-      background: #000;
-      display: flex; flex-direction: column;
-    }
+/* Placeholder */
+#placeholder {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  display:-webkit-box; display:flex;
+  -webkit-box-orient:vertical; flex-direction:column;
+  -webkit-box-align:center; align-items:center;
+  -webkit-box-pack:center; justify-content:center;
+}
+#placeholder .big {
+  font-size:64px; letter-spacing:6px;
+  font-weight:bold; color:rgba(255,255,255,0.05);
+}
+#placeholder .big span { color:rgba(0,212,255,0.12); }
+#placeholder .hint { font-size:14px; color:#2a3a54; margin-top:10px; }
 
-    #video-wrap {
-      flex: 1; position: relative;
-      background: #000;
-    }
+/* Loading */
+#loading {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background:rgba(8,12,20,0.7);
+  display:-webkit-box; display:flex;
+  -webkit-box-align:center; align-items:center;
+  -webkit-box-pack:center; justify-content:center;
+  display:none; z-index:10;
+}
+.spin {
+  width:44px; height:44px;
+  border:3px solid #1e2d45;
+  border-top-color:#00d4ff;
+  border-radius:50%;
+  -webkit-animation:spin 0.8s linear infinite;
+  animation:spin 0.8s linear infinite;
+}
+@-webkit-keyframes spin { to { -webkit-transform:rotate(360deg); } }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-    video#player {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      display: block;
-    }
+/* Error */
+#err-box {
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background:#080c14;
+  display:-webkit-box; display:flex;
+  -webkit-box-orient:vertical; flex-direction:column;
+  -webkit-box-align:center; align-items:center;
+  -webkit-box-pack:center; justify-content:center;
+  display:none; z-index:11; text-align:center;
+}
+#err-box .icon { font-size:48px; margin-bottom:12px; }
+#err-box .title { font-size:20px; color:#ff3b5c; font-weight:bold; }
+#err-box .msg { font-size:13px; color:#6a7a94; margin-top:8px; max-width:380px; }
 
-    /* ── OVERLAY ── */
-    #overlay {
-      position: absolute; inset: 0;
-      pointer-events: none;
-      z-index: 5;
-    }
+/* OSD */
+#osd {
+  position:absolute; bottom:55px;
+  left:50%; margin-left:-160px;
+  width:320px;
+  background:rgba(8,12,20,0.92);
+  border:1px solid #1e2d45;
+  border-radius:10px; padding:12px 24px;
+  text-align:center; display:none; z-index:20;
+}
+#osd .onum { font-size:12px; color:#00d4ff; letter-spacing:2px; }
+#osd .oname { font-size:20px; font-weight:bold; margin-top:3px; }
+#osd .ogrp { font-size:12px; color:#6a7a94; margin-top:2px; }
 
-    /* Channel OSD */
-    #channel-osd {
-      position: absolute;
-      bottom: 60px; left: 50%;
-      transform: translateX(-50%);
-      background: rgba(8,12,20,0.9);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 28px;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    #channel-osd.visible { opacity: 1; }
-    #osd-num {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px; letter-spacing: 2px;
-      color: var(--accent); margin-bottom: 2px;
-    }
-    #osd-name {
-      font-size: 20px; font-weight: 700;
-    }
-    #osd-group {
-      font-size: 12px; color: var(--text-dim); margin-top: 2px;
-    }
+/* Info bar */
+#info-bar {
+  height:48px; background:#0f1623;
+  border-top:1px solid #1e2d45;
+  display:-webkit-box; display:flex;
+  -webkit-box-align:center; align-items:center;
+  padding:0 16px; -webkit-box-flex:0; flex-shrink:0;
+}
+.ki {
+  display:-webkit-box; display:flex;
+  -webkit-box-align:center; align-items:center;
+  font-size:11px; color:#6a7a94;
+  margin-right:16px;
+}
+.kbadge {
+  background:#161e2e; border:1px solid #1e2d45;
+  border-radius:4px; padding:2px 7px;
+  font-size:10px; font-weight:bold;
+  color:#a0b0c8; margin-right:5px;
+}
+.ksep { width:1px; height:18px; background:#1e2d45; margin-right:16px; }
+.kflex { -webkit-box-flex:1; flex:1; }
+#stat-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:#6a7a94; margin-right:6px;
+}
+#stat-dot.live { background:#00d4ff; }
+#stat-txt { font-size:11px; color:#6a7a94; }
 
-    /* Loading spinner */
-    #loading-overlay {
-      position: absolute; inset: 0;
-      background: rgba(8,12,20,0.7);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 6;
-    }
-    #loading-overlay.visible { opacity: 1; }
-    .spinner {
-      width: 48px; height: 48px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Error overlay */
-    #error-overlay {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      background: var(--bg);
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 7; text-align: center; gap: 12px;
-    }
-    #error-overlay.visible { opacity: 1; }
-    .error-icon { font-size: 48px; }
-    .error-title { font-size: 20px; font-weight: 700; color: var(--red); }
-    .error-msg { font-size: 13px; color: var(--text-dim); max-width: 400px; }
-
-    /* No channel placeholder */
-    #placeholder {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 16px; z-index: 4;
-    }
-    .placeholder-logo {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 72px; font-weight: 700; letter-spacing: 6px;
-      color: rgba(255,255,255,0.06);
-    }
-    .placeholder-logo span { color: rgba(0,212,255,0.15); }
-    .placeholder-hint {
-      font-size: 14px; color: var(--text-dim);
-      letter-spacing: 1px;
-    }
-
-    /* ── INFO BAR ── */
-    #info-bar {
-      height: 52px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      display: flex; align-items: center;
-      padding: 0 20px; gap: 20px;
-      flex-shrink: 0;
-    }
-    .info-item {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 11px; color: var(--text-dim);
-    }
-    .info-item .key {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2px 7px;
-      font-size: 10px; font-weight: 700;
-      color: var(--text-mid);
-      letter-spacing: 0.5px;
-    }
-    .info-sep {
-      width: 1px; height: 20px;
-      background: var(--border);
-    }
-    .info-spacer { flex: 1; }
-    #status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--text-dim);
-      transition: background 0.3s;
-    }
-    #status-dot.live {
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse 2s infinite;
-    }
-    #status-text { font-size: 11px; color: var(--text-dim); }
-
-    /* ── NOTIFICATIONS ── */
-    #notif {
-      position: fixed; top: 24px; right: 24px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 18px;
-      font-size: 13px;
-      opacity: 0; transform: translateY(-8px);
-      transition: all 0.3s ease;
-      z-index: 999;
-      max-width: 280px;
-    }
-    #notif.show { opacity: 1; transform: translateY(0); }
-    #notif.notif-ok { border-color: var(--accent); }
-    #notif.notif-err { border-color: var(--red); color: var(--red); }
-
-    /* ── KEYS HINT ── */
-    #keys-hint {
-      position: fixed; top: 50%; right: 24px;
-      transform: translateY(-50%);
-      background: rgba(15,22,35,0.95);
-      border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 50;
-      font-size: 12px;
-    }
-    #keys-hint.visible { opacity: 1; }
-    .key-row {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 10px;
-    }
-    .key-row:last-child { margin-bottom: 0; }
-    .key-badge {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      padding: 3px 8px; font-size: 11px;
-      font-weight: 700; color: var(--text-mid);
-      min-width: 36px; text-align: center;
-    }
-    .key-desc { color: var(--text-dim); }
-  </style>
+/* Notification */
+#notif {
+  position:fixed; top:20px; right:20px;
+  background:#0f1623; border:1px solid #1e2d45;
+  border-radius:8px; padding:11px 16px;
+  font-size:13px; display:none; z-index:999;
+  max-width:280px;
+}
+#notif.ok { border-color:#00d4ff; }
+#notif.err { border-color:#ff3b5c; color:#ff3b5c; }
+</style>
 </head>
 <body>
 
 <!-- SPLASH -->
 <div id="splash">
-  <div class="splash-logo">STREAM<span>TV</span></div>
-  <div class="splash-sub">IPTV Player · Tizen OS</div>
-  <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+  <h1>STREAM<span>TV</span></h1>
+  <p>IPTV PLAYER &bull; TIZEN OS</p>
+  <div class="splash-bar"><div class="splash-fill" id="sbar"></div></div>
 </div>
 
-<!-- SETUP SCREEN -->
-<div id="setup-screen">
-  <div class="setup-card">
-    <h1>STREAM<span>TV</span></h1>
-    <p>Insira a URL da sua lista de canais .m3u ou .m3u8<br>para começar a assistir.</p>
-
-    <div class="input-group">
+<!-- SETUP -->
+<div id="setup" style="display:none">
+  <div class="card">
+    <h2>STREAM<span>TV</span></h2>
+    <p>Insira a URL da sua lista de canais .m3u<br>para comecar a assistir.</p>
+    <div class="field">
       <label>URL da Lista M3U</label>
-      <input type="text" id="m3u-url" placeholder="http://exemplo.com/lista.m3u"
-             value="" autocomplete="off" spellcheck="false" />
+      <input type="text" id="m3u-url" value="" />
     </div>
-    <div class="input-group">
-      <label>Nome da Lista (opcional)</label>
-      <input type="text" id="list-name" placeholder="Minha Lista IPTV" />
+    <div class="field">
+      <label>Nome (opcional)</label>
+      <input type="text" id="list-name" value="" />
     </div>
-
-    <div class="setup-error" id="setup-error"></div>
-
-    <button class="btn btn-primary" id="btn-load" onclick="loadFromSetup()">
-      ▶ Carregar Lista
-    </button>
-    <button class="btn btn-ghost" id="btn-demo" onclick="loadDemo()">
-      Usar lista de demonstração
-    </button>
+    <div id="setup-err"></div>
+    <button class="btn-main focused" id="btn-load">Carregar Lista</button>
+    <button class="btn-ghost" id="btn-demo">Usar lista de demonstracao</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
   <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">STREAM<span>TV</span></div>
-      <div class="sidebar-meta" id="list-label">— canais</div>
+    <div class="sb-header">
+      <div class="sb-logo">STREAM<span>TV</span></div>
+      <div class="sb-meta" id="sb-meta">0 canais</div>
     </div>
-
-    <div class="search-wrap">
-      <div class="search-box" id="search-box">
-        <span class="search-icon">⌕</span>
-        <input type="text" id="search-input" placeholder="Buscar canal..." oninput="filterChannels()" />
-      </div>
+    <div class="sb-search">
+      <input type="text" id="s-input" placeholder="Buscar canal..." />
     </div>
-
-    <div class="groups-bar" id="groups-bar"></div>
-
-    <div id="channel-list"></div>
-    <div class="ch-count" id="ch-count">0 canais</div>
+    <div class="sb-groups" id="grp-bar"></div>
+    <div id="ch-list"></div>
+    <div class="sb-footer" id="ch-count">0 canais</div>
   </div>
 
   <!-- PLAYER -->
-  <div id="player-area">
-    <div id="video-wrap">
-      <video id="player" autoplay playsinline></video>
+  <div id="player-wrap">
+    <div id="player-area">
+      <video id="v" autoplay></video>
 
       <div id="placeholder">
-        <div class="placeholder-logo">STREAM<span>TV</span></div>
-        <div class="placeholder-hint">← Selecione um canal para começar</div>
+        <div class="big">STREAM<span>TV</span></div>
+        <div class="hint">Selecione um canal na lista</div>
       </div>
 
-      <div id="loading-overlay"><div class="spinner"></div></div>
+      <div id="loading"><div class="spin"></div></div>
 
-      <div id="error-overlay">
-        <div class="error-icon">⚠</div>
-        <div class="error-title">Falha ao carregar canal</div>
-        <div class="error-msg" id="error-msg">O stream não pôde ser reproduzido.</div>
+      <div id="err-box">
+        <div class="icon">!</div>
+        <div class="title">Erro ao carregar canal</div>
+        <div class="msg" id="err-msg">Stream indisponivel.</div>
       </div>
 
-      <div id="overlay">
-        <div id="channel-osd">
-          <div id="osd-num">CH 001</div>
-          <div id="osd-name">Canal</div>
-          <div id="osd-group">Grupo</div>
-        </div>
+      <div id="osd">
+        <div class="onum" id="onum">CH 001</div>
+        <div class="oname" id="oname">Canal</div>
+        <div class="ogrp" id="ogrp">Grupo</div>
       </div>
     </div>
 
-    <!-- INFO BAR -->
     <div id="info-bar">
-      <div class="info-item"><span class="key">◄ ►</span> Navegar</div>
-      <div class="info-sep"></div>
-      <div class="info-item"><span class="key">OK</span> Selecionar</div>
-      <div class="info-sep"></div>
-      <div class="info-item"><span class="key">▲ ▼</span> Canal +/-</div>
-      <div class="info-sep"></div>
-      <div class="info-item"><span class="key">BACK</span> Menu</div>
-      <div class="info-sep"></div>
-      <div class="info-item"><span class="key">?</span> Ajuda</div>
-      <div class="info-spacer"></div>
-      <div id="status-dot"></div>
-      <div id="status-text">Parado</div>
+      <div class="ki"><span class="kbadge">OK</span>Selecionar</div>
+      <div class="ksep"></div>
+      <div class="ki"><span class="kbadge">CIMA/BAIXO</span>Canal +/-</div>
+      <div class="ksep"></div>
+      <div class="ki"><span class="kbadge">ESQUERDA</span>Menu</div>
+      <div class="ksep"></div>
+      <div class="ki"><span class="kbadge">BACK</span>Ocultar menu</div>
+      <div class="kflex"></div>
+      <div id="stat-dot"></div>
+      <div id="stat-txt">Parado</div>
     </div>
   </div>
 </div>
 
-<!-- NOTIFICATION -->
 <div id="notif"></div>
 
-<!-- KEYS HINT -->
-<div id="keys-hint">
-  <div class="key-row"><span class="key-badge">◄ ►</span><span class="key-desc">Painel / Player</span></div>
-  <div class="key-row"><span class="key-badge">▲ ▼</span><span class="key-desc">Canal anterior/próx</span></div>
-  <div class="key-row"><span class="key-badge">OK</span><span class="key-desc">Confirmar</span></div>
-  <div class="key-row"><span class="key-badge">BACK</span><span class="key-desc">Mostrar/ocultar menu</span></div>
-  <div class="key-row"><span class="key-badge">0-9</span><span class="key-desc">Digitar número</span></div>
-  <div class="key-row"><span class="key-badge">?</span><span class="key-desc">Fechar ajuda</span></div>
-</div>
-
-<!-- HLS.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
-
 <script>
-// ═══════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════
-let channels = [];
-let filteredChannels = [];
-let currentIndex = -1;
-let activeGroup = 'Todos';
-let hls = null;
-let osdTimer = null;
-let notifTimer = null;
-let focusMode = 'list'; // 'list' | 'player'
-let listFocusIdx = 0;
-let keysVisible = false;
-let sidebarVisible = true;
+// ===================================================
+// ES5 COMPAT – Samsung Tizen Browser 2.1 (2014)
+// ===================================================
 
-const STORAGE_KEY = 'streamtv_m3u_url';
-const NAME_KEY = 'streamtv_list_name';
+var channels = [];
+var filtered = [];
+var curIdx = -1;
+var activeGrp = 'Todos';
+var focusMode = 'list'; // 'list' or 'player'
+var listFocus = 0;
+var sidebarOn = true;
+var osdTimer = null;
+var notifTimer = null;
 
-const $ = id => document.getElementById(id);
+var STORAGE_M3U = 'stv_url';
+var STORAGE_NAME = 'stv_name';
 
-// ═══════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    $('splash').classList.add('hidden');
-    const saved = localStorage.getItem(STORAGE_KEY);
+function el(id) { return document.getElementById(id); }
+
+// ─── SPLASH ───
+window.onload = function() {
+  var bar = el('sbar');
+  setTimeout(function() { bar.style.width = '100%'; }, 100);
+
+  setTimeout(function() {
+    el('splash').style.display = 'none';
+    var saved = '';
+    try { saved = localStorage.getItem(STORAGE_M3U) || ''; } catch(e) {}
     if (saved) {
-      // restore last URL
-      $('setup-screen').classList.add('hidden');
-      $('app').classList.add('visible');
-      fetchM3U(saved, localStorage.getItem(NAME_KEY) || 'Lista IPTV');
+      el('app').style.visibility = 'visible';
+      fetchM3U(saved, (function() {
+        try { return localStorage.getItem(STORAGE_NAME) || 'Lista IPTV'; } catch(e) { return 'Lista IPTV'; }
+      })());
+    } else {
+      el('setup').style.display = 'flex';
     }
-  }, 1800);
-});
+  }, 2000);
+};
 
-// ═══════════════════════════════════════════════
-// SETUP
-// ═══════════════════════════════════════════════
-function loadFromSetup() {
-  const url = $('m3u-url').value.trim();
-  const name = $('list-name').value.trim() || 'Lista IPTV';
-  if (!url) {
-    showSetupError('Por favor, insira a URL da lista M3U.');
-    return;
-  }
-  if (!url.startsWith('http')) {
-    showSetupError('A URL deve começar com http:// ou https://');
-    return;
-  }
-  localStorage.setItem(STORAGE_KEY, url);
-  localStorage.setItem(NAME_KEY, name);
-  $('setup-screen').classList.add('hidden');
-  $('app').classList.add('visible');
+// ─── SETUP ───
+el('btn-load').onclick = function() { doLoad(); };
+el('btn-demo').onclick = function() { loadDemo(); };
+el('m3u-url').onkeydown = function(e) {
+  if (e.keyCode === 13) doLoad();
+};
+
+function doLoad() {
+  var url = el('m3u-url').value;
+  var name = el('list-name').value || 'Lista IPTV';
+  if (!url) { showSetupErr('Insira a URL da lista M3U.'); return; }
+  try {
+    localStorage.setItem(STORAGE_M3U, url);
+    localStorage.setItem(STORAGE_NAME, name);
+  } catch(e) {}
+  el('setup').style.display = 'none';
+  el('app').style.visibility = 'visible';
   fetchM3U(url, name);
 }
 
 function loadDemo() {
-  // Public demo M3U
-  const demoUrl = 'https://iptv-org.github.io/iptv/languages/por.m3u';
-  localStorage.setItem(STORAGE_KEY, demoUrl);
-  localStorage.setItem(NAME_KEY, 'Demo — Português');
-  $('setup-screen').classList.add('hidden');
-  $('app').classList.add('visible');
-  fetchM3U(demoUrl, 'Demo — Português');
-}
-
-function showSetupError(msg) {
-  const el = $('setup-error');
-  el.textContent = msg;
-  el.classList.add('visible');
-  setTimeout(() => el.classList.remove('visible'), 4000);
-}
-
-// ═══════════════════════════════════════════════
-// M3U FETCH & PARSE
-// ═══════════════════════════════════════════════
-async function fetchM3U(url, name) {
-  showNotif('Carregando lista...', 'ok');
+  var url = 'https://iptv-org.github.io/iptv/languages/por.m3u';
   try {
-    // Try direct fetch first, fall back to CORS proxy
-    let text = '';
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      text = await resp.text();
-    } catch {
-      // CORS proxy fallback
-      const proxy = 'https://corsproxy.io/?' + encodeURIComponent(url);
-      const resp2 = await fetch(proxy);
-      if (!resp2.ok) throw new Error('Proxy HTTP ' + resp2.status);
-      text = await resp2.text();
-    }
-    channels = parseM3U(text);
-    if (channels.length === 0) throw new Error('Nenhum canal encontrado na lista.');
-    $('list-label').textContent = channels.length + ' canais';
-    buildGroups();
-    filterChannels();
-    showNotif(`✓ ${channels.length} canais carregados`, 'ok');
-    focusMode = 'list';
-    listFocusIdx = 0;
-    renderFocus();
-  } catch (e) {
-    showNotif('Erro: ' + e.message, 'err');
-    console.error(e);
-  }
+    localStorage.setItem(STORAGE_M3U, url);
+    localStorage.setItem(STORAGE_NAME, 'Demo Portugues');
+  } catch(e) {}
+  el('setup').style.display = 'none';
+  el('app').style.visibility = 'visible';
+  fetchM3U(url, 'Demo Portugues');
 }
 
+function showSetupErr(msg) {
+  var e = el('setup-err');
+  e.textContent = msg;
+  e.style.display = 'block';
+  setTimeout(function() { e.style.display = 'none'; }, 4000);
+}
+
+// ─── M3U FETCH (XHR – ES5) ───
+function fetchM3U(url, name) {
+  showNotif('Carregando lista...', 'ok');
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 200) {
+      parseAndRender(xhr.responseText, name);
+    } else {
+      // Try CORS proxy
+      var proxy = 'https://corsproxy.io/?' + encodeURIComponent(url);
+      var xhr2 = new XMLHttpRequest();
+      xhr2.open('GET', proxy, true);
+      xhr2.onreadystatechange = function() {
+        if (xhr2.readyState !== 4) return;
+        if (xhr2.status === 200) {
+          parseAndRender(xhr2.responseText, name);
+        } else {
+          showNotif('Erro ao carregar lista: ' + xhr2.status, 'err');
+        }
+      };
+      xhr2.send();
+    }
+  };
+  xhr.send();
+}
+
+function parseAndRender(text, name) {
+  channels = parseM3U(text);
+  if (channels.length === 0) {
+    showNotif('Nenhum canal encontrado!', 'err');
+    return;
+  }
+  el('sb-meta').textContent = channels.length + ' canais';
+  buildGroups();
+  filterChannels();
+  showNotif(channels.length + ' canais carregados', 'ok');
+  focusMode = 'list';
+  listFocus = 0;
+  renderFocus();
+}
+
+// ─── PARSE M3U ───
 function parseM3U(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  const result = [];
-  let pending = null;
-  for (const line of lines) {
-    if (line.startsWith('#EXTINF')) {
-      const name = line.replace(/.*,/, '').trim();
-      const logo = (line.match(/tvg-logo="([^"]*)"/) || [])[1] || '';
-      const group = (line.match(/group-title="([^"]*)"/) || [])[1] || 'Geral';
-      const tvgName = (line.match(/tvg-name="([^"]*)"/) || [])[1] || name;
-      pending = { name: tvgName || name, logo, group };
-    } else if (pending && (line.startsWith('http') || line.startsWith('rtmp'))) {
+  var lines = text.split('\n');
+  var result = [];
+  var pending = null;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].replace(/^\s+|\s+$/g, '');
+    if (line.indexOf('#EXTINF') === 0) {
+      var name = line.replace(/.*,/, '').replace(/^\s+|\s+$/g, '');
+      var logo = extractAttr(line, 'tvg-logo');
+      var group = extractAttr(line, 'group-title') || 'Geral';
+      var tvgName = extractAttr(line, 'tvg-name');
+      pending = { name: tvgName || name, logo: logo, group: group };
+    } else if (pending && (line.indexOf('http') === 0 || line.indexOf('rtmp') === 0)) {
       pending.url = line;
       result.push(pending);
       pending = null;
-    } else {
+    } else if (line && line.indexOf('#') !== 0) {
       pending = null;
     }
   }
   return result;
 }
 
-// ═══════════════════════════════════════════════
-// GROUPS
-// ═══════════════════════════════════════════════
+function extractAttr(str, attr) {
+  var re = new RegExp(attr + '="([^"]*)"');
+  var m = str.match(re);
+  return m ? m[1] : '';
+}
+
+// ─── GROUPS ───
 function buildGroups() {
-  const groups = ['Todos', ...new Set(channels.map(c => c.group))];
-  const bar = $('groups-bar');
-  bar.innerHTML = groups.map(g =>
-    `<div class="group-chip ${g === activeGroup ? 'active' : ''}"
-         onclick="setGroup('${g.replace(/'/g, "\\'")}')">${g}</div>`
-  ).join('');
+  var seen = { 'Todos': true };
+  var grps = ['Todos'];
+  for (var i = 0; i < channels.length; i++) {
+    if (!seen[channels[i].group]) {
+      seen[channels[i].group] = true;
+      grps.push(channels[i].group);
+    }
+  }
+  var bar = el('grp-bar');
+  var html = '';
+  for (var j = 0; j < grps.length; j++) {
+    var g = grps[j];
+    var cls = g === activeGrp ? 'grp active' : 'grp';
+    html += '<div class="' + cls + '" data-g="' + esc(g) + '">' + esc(g) + '</div>';
+  }
+  bar.innerHTML = html;
+  var chips = bar.querySelectorAll('.grp');
+  for (var k = 0; k < chips.length; k++) {
+    (function(chip) {
+      chip.onclick = function() {
+        activeGrp = chip.getAttribute('data-g');
+        buildGroups();
+        filterChannels();
+      };
+    })(chips[k]);
+  }
 }
 
-function setGroup(g) {
-  activeGroup = g;
-  buildGroups();
-  filterChannels();
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ═══════════════════════════════════════════════
-// CHANNEL LIST
-// ═══════════════════════════════════════════════
+// ─── FILTER ───
 function filterChannels() {
-  const q = $('search-input').value.toLowerCase();
-  filteredChannels = channels.filter(c => {
-    const groupOk = activeGroup === 'Todos' || c.group === activeGroup;
-    const nameOk = !q || c.name.toLowerCase().includes(q);
-    return groupOk && nameOk;
-  });
+  var q = el('s-input').value.toLowerCase();
+  filtered = [];
+  for (var i = 0; i < channels.length; i++) {
+    var c = channels[i];
+    var gOk = activeGrp === 'Todos' || c.group === activeGrp;
+    var nOk = !q || c.name.toLowerCase().indexOf(q) >= 0;
+    if (gOk && nOk) filtered.push(c);
+  }
   renderList();
-  $('ch-count').textContent = filteredChannels.length + ' canais';
-  if (listFocusIdx >= filteredChannels.length) listFocusIdx = 0;
+  el('ch-count').textContent = filtered.length + ' canais';
+  if (listFocus >= filtered.length) listFocus = 0;
 }
 
+el('s-input').oninput = function() { filterChannels(); };
+
+// ─── RENDER LIST ───
 function renderList() {
-  const list = $('channel-list');
-  list.innerHTML = filteredChannels.map((c, i) => `
-    <div class="ch-item ${i === currentIndex ? 'active' : ''}" id="ch-${i}" onclick="playChannel(${i})">
-      <span class="ch-num">${String(i+1).padStart(3,'0')}</span>
-      <div class="ch-logo">
-        ${c.logo ? `<img src="${c.logo}" onerror="this.style.display='none'">` : initials(c.name)}
-      </div>
-      <div class="ch-info">
-        <div class="ch-name">${c.name}</div>
-        <div class="ch-group">${c.group}</div>
-      </div>
-      ${i === currentIndex ? '<div class="ch-playing"></div>' : ''}
-    </div>
-  `).join('');
+  var list = el('ch-list');
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var c = filtered[i];
+    var cls = 'ch';
+    if (i === curIdx) cls += ' active';
+    var imgHtml = c.logo
+      ? '<img src="' + esc(c.logo) + '" onerror="this.style.display=\'none\'">'
+      : initials(c.name);
+    var dot = i === curIdx ? '<div class="ch-dot"></div>' : '';
+    html += '<div class="' + cls + '" id="ci-' + i + '" data-i="' + i + '">' +
+      '<span class="ch-n">' + pad(i+1) + '</span>' +
+      '<div class="ch-img">' + imgHtml + '</div>' +
+      '<div class="ch-info">' +
+        '<div class="ch-name">' + esc(c.name) + '</div>' +
+        '<div class="ch-grp">' + esc(c.group) + '</div>' +
+      '</div>' + dot +
+    '</div>';
+  }
+  list.innerHTML = html;
+  var items = list.querySelectorAll('.ch');
+  for (var j = 0; j < items.length; j++) {
+    (function(item) {
+      item.onclick = function() {
+        var idx = parseInt(item.getAttribute('data-i'), 10);
+        playChannel(idx);
+      };
+    })(items[j]);
+  }
 }
 
-function initials(name) {
-  return name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase() || '?';
+function initials(n) {
+  var parts = n.split(' ');
+  var s = '';
+  for (var i = 0; i < parts.length && i < 2; i++) {
+    if (parts[i][0]) s += parts[i][0].toUpperCase();
+  }
+  return s || '?';
+}
+
+function pad(n) {
+  var s = String(n);
+  while (s.length < 3) s = '0' + s;
+  return s;
 }
 
 function renderFocus() {
-  document.querySelectorAll('.ch-item').forEach((el, i) => {
-    el.classList.toggle('focused', focusMode === 'list' && i === listFocusIdx);
-  });
+  var items = el('ch-list').querySelectorAll('.ch');
+  for (var i = 0; i < items.length; i++) {
+    if (focusMode === 'list' && i === listFocus) {
+      items[i].className = items[i].className.replace(' focused','') + ' focused';
+    } else {
+      items[i].className = items[i].className.replace(' focused','');
+    }
+  }
   if (focusMode === 'list') {
-    const el = $('ch-' + listFocusIdx);
-    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    var el2 = el('ci-' + listFocus);
+    if (el2) {
+      var list = el('ch-list');
+      var top = el2.offsetTop;
+      var lH = list.clientHeight;
+      if (top < list.scrollTop || top + el2.clientHeight > list.scrollTop + lH) {
+        list.scrollTop = top - lH / 2;
+      }
+    }
   }
 }
 
-// ═══════════════════════════════════════════════
-// PLAYER
-// ═══════════════════════════════════════════════
+// ─── PLAYER ───
 function playChannel(idx) {
-  if (idx < 0 || idx >= filteredChannels.length) return;
-  currentIndex = idx;
-  const ch = filteredChannels[idx];
+  if (idx < 0 || idx >= filtered.length) return;
+  curIdx = idx;
+  listFocus = idx;
+  var ch = filtered[idx];
 
-  $('placeholder').style.display = 'none';
-  showLoading(true);
-  hideError();
+  el('placeholder').style.display = 'none';
+  el('loading').style.display = 'flex';
+  el('err-box').style.display = 'none';
   showOSD(ch, idx);
   renderList();
-  updateStatus('Carregando...');
+  renderFocus();
+  setStat('Carregando...', false);
 
-  destroyHLS();
-
-  const video = $('player');
-
-  if (Hls.isSupported()) {
-    hls = new Hls({
-      maxBufferLength: 30,
-      maxMaxBufferLength: 60,
-      enableWorker: true,
-    });
-    hls.loadSource(ch.url);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.play().catch(() => {});
-      showLoading(false);
-      updateStatus('Ao vivo', true);
-    });
-    hls.on(Hls.Events.ERROR, (event, data) => {
-      if (data.fatal) {
-        showLoading(false);
-        showError('Stream indisponível ou formato não suportado.');
-        updateStatus('Erro');
-      }
-    });
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = ch.url;
-    video.play().then(() => {
-      showLoading(false);
-      updateStatus('Ao vivo', true);
-    }).catch(() => {
-      showLoading(false);
-      showError('Não foi possível reproduzir este stream.');
-    });
-  } else {
-    showLoading(false);
-    showError('HLS não suportado neste dispositivo.');
-  }
-}
-
-function destroyHLS() {
-  if (hls) { hls.destroy(); hls = null; }
-  const v = $('player');
+  var v = el('v');
   v.pause();
   v.src = '';
-}
 
-function showLoading(v) {
-  $('loading-overlay').classList.toggle('visible', v);
-}
-function showError(msg) {
-  $('error-msg').textContent = msg;
-  $('error-overlay').classList.add('visible');
-}
-function hideError() {
-  $('error-overlay').classList.remove('visible');
-}
-function updateStatus(text, live = false) {
-  $('status-text').textContent = text;
-  $('status-dot').classList.toggle('live', live);
+  // Samsung Tizen supports HLS natively in video tag
+  v.src = ch.url;
+  v.load();
+
+  var started = false;
+  v.oncanplay = function() {
+    if (!started) {
+      started = true;
+      el('loading').style.display = 'none';
+      setStat('Ao vivo', true);
+      v.play();
+    }
+  };
+  v.onplaying = function() {
+    el('loading').style.display = 'none';
+    setStat('Ao vivo', true);
+  };
+  v.onerror = function() {
+    el('loading').style.display = 'none';
+    el('err-box').style.display = 'flex';
+    el('err-msg').textContent = 'Stream indisponivel ou formato nao suportado.';
+    setStat('Erro', false);
+  };
+  v.onstalled = function() {
+    el('loading').style.display = 'flex';
+    setStat('Bufferizando...', false);
+  };
+  v.onwaiting = function() {
+    el('loading').style.display = 'flex';
+  };
+  v.onprogress = function() {
+    el('loading').style.display = 'none';
+  };
+
+  // Timeout fallback
+  setTimeout(function() {
+    if (curIdx === idx && el('loading').style.display !== 'none') {
+      el('loading').style.display = 'none';
+      if (v.readyState < 3) {
+        el('err-box').style.display = 'flex';
+        el('err-msg').textContent = 'Timeout: stream nao respondeu.';
+        setStat('Erro', false);
+      }
+    }
+  }, 15000);
 }
 
 function showOSD(ch, idx) {
-  $('osd-num').textContent = 'CH ' + String(idx+1).padStart(3,'0');
-  $('osd-name').textContent = ch.name;
-  $('osd-group').textContent = ch.group;
-  $('channel-osd').classList.add('visible');
+  el('onum').textContent = 'CH ' + pad(idx+1);
+  el('oname').textContent = ch.name;
+  el('ogrp').textContent = ch.group;
+  el('osd').style.display = 'block';
   clearTimeout(osdTimer);
-  osdTimer = setTimeout(() => $('channel-osd').classList.remove('visible'), 3500);
+  osdTimer = setTimeout(function() { el('osd').style.display = 'none'; }, 3500);
 }
 
-// ═══════════════════════════════════════════════
-// KEYBOARD / REMOTE CONTROL
-// ═══════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  // Keys hint toggle
-  if (e.key === '?' || e.key === '/') { toggleKeys(); return; }
+function setStat(txt, live) {
+  el('stat-txt').textContent = txt;
+  if (live) {
+    el('stat-dot').className = 'live';
+  } else {
+    el('stat-dot').className = '';
+  }
+}
 
-  // Setup screen: Enter to submit
-  if (!$('setup-screen').classList.contains('hidden')) {
-    if (e.key === 'Enter') loadFromSetup();
+// ─── KEYBOARD ───
+document.onkeydown = function(e) {
+  var code = e.keyCode || e.which;
+
+  // Setup screen
+  if (el('setup').style.display !== 'none') {
+    if (code === 13) doLoad();
     return;
   }
 
-  // Sidebar toggle (BACK key)
-  if (e.key === 'Escape' || e.key === 'XF86Back' || e.key === 'Back') {
+  // BACK / Escape = toggle sidebar
+  if (code === 27 || code === 10009) { // 10009 = Tizen BACK
     toggleSidebar(); return;
   }
 
-  // Arrow navigation
-  if (e.key === 'ArrowLeft') {
-    focusMode = 'list'; renderFocus(); e.preventDefault();
-    if (!sidebarVisible) toggleSidebar();
-    return;
+  // LEFT = go to list
+  if (code === 37) {
+    focusMode = 'list'; renderFocus();
+    if (!sidebarOn) { sidebarOn = true; el('sidebar').style.display = 'flex'; }
+    e.preventDefault(); return;
   }
-  if (e.key === 'ArrowRight') {
-    if (filteredChannels.length === 0) return;
-    focusMode = 'player'; renderFocus(); e.preventDefault();
-    return;
+  // RIGHT = go to player
+  if (code === 39) {
+    focusMode = 'player'; renderFocus(); e.preventDefault(); return;
   }
 
   if (focusMode === 'list') {
-    if (e.key === 'ArrowUp') {
-      listFocusIdx = Math.max(0, listFocusIdx - 1);
+    if (code === 38) { // UP
+      listFocus = listFocus > 0 ? listFocus - 1 : 0;
       renderFocus(); e.preventDefault();
-    } else if (e.key === 'ArrowDown') {
-      listFocusIdx = Math.min(filteredChannels.length - 1, listFocusIdx + 1);
+    } else if (code === 40) { // DOWN
+      listFocus = listFocus < filtered.length - 1 ? listFocus + 1 : listFocus;
       renderFocus(); e.preventDefault();
-    } else if (e.key === 'Enter') {
-      playChannel(listFocusIdx);
+    } else if (code === 13) { // OK/Enter
+      playChannel(listFocus);
       focusMode = 'player';
     }
   } else {
-    // player mode: up/down = prev/next channel
-    if (e.key === 'ArrowUp' || e.key === 'ChannelUp') {
-      const next = currentIndex - 1;
-      if (next >= 0) { listFocusIdx = next; playChannel(next); }
+    // player mode
+    if (code === 38 || code === 427) { // UP or CH+
+      if (curIdx > 0) { playChannel(curIdx - 1); }
       e.preventDefault();
-    } else if (e.key === 'ArrowDown' || e.key === 'ChannelDown') {
-      const next = currentIndex + 1;
-      if (next < filteredChannels.length) { listFocusIdx = next; playChannel(next); }
+    } else if (code === 40 || code === 428) { // DOWN or CH-
+      if (curIdx < filtered.length - 1) { playChannel(curIdx + 1); }
       e.preventDefault();
-    } else if (e.key === 'Enter') {
-      // re-play current
-      if (currentIndex >= 0) playChannel(currentIndex);
+    } else if (code === 13) {
+      if (curIdx >= 0) playChannel(curIdx);
     }
   }
-});
+};
 
-// ═══════════════════════════════════════════════
-// SIDEBAR TOGGLE
-// ═══════════════════════════════════════════════
 function toggleSidebar() {
-  sidebarVisible = !sidebarVisible;
-  $('sidebar').classList.toggle('hidden-sidebar', !sidebarVisible);
-  if (sidebarVisible) { focusMode = 'list'; renderFocus(); }
-  else { focusMode = 'player'; }
+  sidebarOn = !sidebarOn;
+  el('sidebar').style.display = sidebarOn ? 'flex' : 'none';
+  if (sidebarOn) { focusMode = 'list'; renderFocus(); }
+  else focusMode = 'player';
 }
 
-// ═══════════════════════════════════════════════
-// KEYS HINT
-// ═══════════════════════════════════════════════
-function toggleKeys() {
-  keysVisible = !keysVisible;
-  $('keys-hint').classList.toggle('visible', keysVisible);
-}
-
-// ═══════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════
-function showNotif(msg, type = 'ok') {
-  const el = $('notif');
-  el.textContent = msg;
-  el.className = 'show notif-' + type;
+// ─── NOTIFICATIONS ───
+function showNotif(msg, type) {
+  var n = el('notif');
+  n.textContent = msg;
+  n.className = type || 'ok';
+  n.style.display = 'block';
   clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => el.classList.remove('show'), 3500);
+  notifTimer = setTimeout(function() { n.style.display = 'none'; }, 3500);
 }
 
-// ═══════════════════════════════════════════════
-// TIZEN specific
-// ═══════════════════════════════════════════════
-if (window.tizen) {
-  try {
+// ─── TIZEN keys ───
+try {
+  if (window.tizen && tizen.tvinputdevice) {
     tizen.tvinputdevice.registerKey('ChannelUp');
     tizen.tvinputdevice.registerKey('ChannelDown');
     tizen.tvinputdevice.registerKey('Back');
-  } catch(e) {}
-}
+  }
+} catch(e) {}
 </script>
 </body>
 </html>
