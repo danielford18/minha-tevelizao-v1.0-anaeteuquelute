@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="http://kaash.tv/StreamTV"
+        version="2.0.0">
+
+    <tizen:application id="StreamTV.Main"
+                       package="StreamTV"
+                       required_version="4.0"/>
+
+    <content src="index.html"/>
+
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+
+    <tizen:profile name="tv"/>
+
+    <feature name="http://tizen.org/feature/network.internet" required="true"/>
+
+    <access origin="*" subdomains="true"/>
+
+    <name>StreamTV</name>
+    <description>IPTV Player – HLS/M3U8 para Samsung Smart TV</description>
+
+    <icon src="icon.png"/>
+
+    <tizen:setting screen-orientation="landscape"
+                   context-menu="disable"
+                   background-support="enable"
+                   encryption="disable"
+                   install-location="auto"
+                   hwkey-event="enable"/>
+</widget>
